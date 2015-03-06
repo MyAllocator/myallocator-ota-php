@@ -1,2 +1,3 @@
-# myallocator-php-sdk-ota
-PHP SDK for OTA's to easily integrate with the MyAllocator OTA BuildToUs API
+#myallocator-php-sdk-ota
+
+This package is still in development. Do not attempt to use it quite yet.

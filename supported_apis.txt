@@ -1,0 +1,16 @@
+The following API's are supported by this SDK.
+API documentation can be found at http://myallocator.github.io/myallocator-php-sdk-ota-docs/
+
+Inbound (MA -> OTA):
+
+  HealthCheck
+  SetupProperty
+  GetRoomTypes
+  GetBookingId
+  GetBookingList
+  ARIUpdate
+
+Outbound (OTA -> MA):
+
+  NotifyBooking
+  UpdateProfile

@@ -1,0 +1,7 @@
+source:
+	- src/MyAllocator
+	
+destination: docs
+title: MyAllocator BuildToUs API PHP SDK for OTA's
+baseUrl: http://myallocator.github.io/myallocator-php-sdk-ota-docs/
+templateTheme: bootstrap

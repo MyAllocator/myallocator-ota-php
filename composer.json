@@ -1,0 +1,28 @@
+{
+    "name": "myallocator/myallocator-php-sdk-ota",
+    "type": "library",
+    "description": "PHP SDK for OTA's to easily integrate with the MyAllocator OTA BuildToUs API",
+    "license": "MIT",
+    "keywords": ["myallocator", "channel", "manager"],
+    "homepage": "https://www.myallocator.com/",
+    "authors": [
+        {
+            "name": "Nathan Helenihi",
+            "email": "nathan.helenihi@cloudbeds.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "MyAllocator\\phpsdkota\\src\\": "src/MyAllocator",
+            "MyAllocator\\phpsdkota\\tests\\json\\": "tests/json",
+            "MyAllocator\\phpsdkota\\tests\\xml\\": "tests/xml"
+        }
+    }
+}
