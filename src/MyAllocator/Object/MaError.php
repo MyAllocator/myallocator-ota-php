@@ -1,6 +1,6 @@
 <?php
 /**
- * MyAllocator BuildToUs PHP SDK Result Object
+ * MyAllocator BuildToUs PHP SDK Error Object
  *
  * @package     myallocator/myallocator-php-sdk-ota
  * @author      Nathan Helenihi <support@myallocator.com>
@@ -11,26 +11,20 @@
 
 namespace MyAllocator\phpsdkota\src\Object;
 
-/**
- * The MyAllocator Version 3 result class. The result class
- * helps to normalize result structure among other things.
- *
- * @author Nathan Helenihi <nathan.helenihi@cloudbeds.com>
- */
 class MaError
 {
     /**
-     * @var integer The result id.
+     * @var integer The error id.
      */
     public $id = null;
 
     /**
-     * @var string The result type.
+     * @var string The error type.
      */
     public $type = null;
 
     /**
-     * @var string The result message
+     * @var string The error message
      */
     public $msg = null;
 
