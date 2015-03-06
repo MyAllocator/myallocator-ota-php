@@ -40,11 +40,6 @@ class MaApi extends MaBaseClass
     protected $id = 'MaApi';
 
     /**
-     * @var \MyAllocator\Object\Auth Authentication object for requester.
-     */
-    private $auth = null;
-
-    /**
      * @var string The API role (Inbound or Outbound).
      */
     protected $role = 'Outbound';
@@ -55,19 +50,9 @@ class MaApi extends MaBaseClass
     private $params = null;
 
     /**
-     * @var mixed The response from the last request.
-     */
-    private $lastApiResponse = null;
-
-    /**
-     * @var array Array of required and optional authentication and argument 
-     *      keys (string) for API method.
+     * @var array Array of required and optional argument keys (string) for API method.
      */
     protected $keys = array(
-        'auth' => array(
-            'req' => array(),
-            'opt' => array()
-        ),
         'args' => array(
             'req' => array(),
             'opt' => array()
@@ -75,39 +60,11 @@ class MaApi extends MaBaseClass
     );
 
     /**
-     * Class contructor attempts to assign authentication parameters
-     * from $cfg argument. Authentication parameters may be configured
-     * via Auth object or array. The parent constructor handles
-     * the included configuration parameters.
-     *
-     * @param mixed $cfg API configuration potentially containing an 
-     *        'auth' key with authentication parameters/object or a
-     *        'cfg' key containing configurations to overwrite Config/MaConfig.php.
+     * Class contructor.
      */
-    public function __construct($cfg = null)
+    public function __construct()
     {
-        parent::__construct($cfg);
-
-        // Load auth information if provided
-        if (isset($cfg) && isset($cfg['auth'])) {
-            if (is_object($cfg['auth']) &&
-                is_a($cfg['auth'], 'MyAllocator\phpsdkota\src\Object\Auth')
-            ) {
-                $this->auth = $cfg['auth'];
-            } else if (is_array($cfg['auth'])) {
-                $auth = new Auth();
-                $auth_refl = new \ReflectionClass($auth);
-                $props = $auth_refl->getProperties(\ReflectionProperty::IS_PUBLIC);
-
-                foreach ($props as $prop) {
-                    $name = $prop->getName();
-                    if (isset($cfg['auth'][$name])) {
-                        $auth->$name = $cfg['auth'][$name];
-                    }
-                }
-                $this->auth = $auth;
-            }
-        }
+        parent::__construct();
     }
 
     /**
@@ -122,43 +79,12 @@ class MaApi extends MaBaseClass
     }
 
     /**
-     * Assert this API's role is Outbound.
-     *
-     * @return boolean True if outbound API.
-     */
-    public function assertRoleOutbound()
-    {
-        if ($this->role != 'Outbound') {
-            $msg = 'Invalid method called for role (role=Outbound, api='.__FUNCTION__.').';
-            throw new RoleException($msg);
-        }
-
-        return true;
-    }
-
-    /**
-     * Assert this API's role is Inbound.
-     *
-     * @return boolean True if inbound API.
-     */
-    public function assertRoleInbound()
-    {
-        if ($this->role != 'Inbound') {
-            $msg = 'Invalid method called for role (role=Outbound, api='.__FUNCTION__.').';
-            throw new RoleException($msg);
-        }
-
-        return true;
-    }
-
-    /**
      * Call the API using previously set parameters (if any).
      *
      * @return mixed API response.
      */
     public function callApi()
     {
-        $this->assertRoleOutbound();
         return $this->processRequest($this->params);
     }
 
@@ -170,39 +96,7 @@ class MaApi extends MaBaseClass
      */
     public function callApiWithParams($params = null)
     {
-        $this->assertRoleOutbound();
         return $this->processRequest($params);
-    }
-
-    /**
-     * Get the authentication object.
-     *
-     * @param string $errorOnNull If true, throw an exception if auth null.
-     *
-     * @return MyAllocator\phpsdkota\src\Object\Auth API Authentication object.
-     *
-     * @throws MyAllocator\phpsdkota\src\Exception\ApiException
-     */
-    public function getAuth($errorOnNull = false)
-    {
-        if ($errorOnNull && !$this->auth) {
-            $msg = 'No Auth object provided.  (HINT: Set your Auth data using '
-                 . '"$API->setAuth(Auth $auth)" or $API\' constructor.  '
-                 . 'See https://TODO for details.';
-            throw new ApiException($msg);
-        }
-
-        return $this->auth;
-    }
-
-    /**
-     * Set the authentication object for the API.
-     *
-     * @param MyAllocator\phpsdkota\src\Object\Auth API Authentication object.
-     */
-    public function setAuth(Auth $auth)
-    {
-        $this->auth = $auth;
     }
 
     /**
@@ -216,17 +110,6 @@ class MaApi extends MaBaseClass
     }
 
     /**
-     * Get the last API response as array($rbody, $rcode).
-     *
-     * @return mixed The last API response.
-     */
-    public function getLastApiResponse()
-    {
-        $this->assertRoleOutbound();
-        return $this->lastApiResponse;
-    }
-
-    /**
      * Validate and process/send the API request.
      *
      * @param array $params API request parameters.
@@ -236,48 +119,32 @@ class MaApi extends MaBaseClass
     {
         // Ensure this api is currently enabled/supported
         $this->assertEnabled();
-        $this->assertRoleOutbound();
 
         // Instantiate requester
         $requestor = new Requestor($this->config);
 
-        switch ($this->config['dataFormat']) {
-            case 'xml':
-                // Do nothing special for XML
-                break;
-            case 'json':
-                // Validate and sanitize parameters (json decode/encode)
-                if ($this->config['paramValidationEnabled']) {
-                    $params_decoded = json_decode($params, TRUE);
-                    $params_decoded = $this->validateApiParameters($this->keys, $params_decoded);
-                    // Add URI method and version to payload
-                    $params['_method'] = $this->id;
-                    $params['_version'] = $requestor->version;
-                    $params = json_encode($params_decoded);
-                }
-                break;
-            case 'array':
-                // Validate and sanitize parameters
-                if ($this->config['paramValidationEnabled']) {
-                    $params = $this->validateApiParameters($this->keys, $params);
-                } else {
-                    $params = $this->setAuthenticationParametersNoValidation($params);
-                }
-                // Add URI method and version to payload
-                $params['_method'] = $this->id;
-                $params['_version'] = $requestor->version;
-                break;
-            default:
-                throw new ApiException(
-                    'Invalid dataFormat: '.$this->config['dataFormat']
-                );
+        // Set ota_cid and shared_secret from config if not provided
+        if (!isset($params['ota_cid'])) {
+            $params['ota_cid'] = $this->config['ota_cid'];
         }
+
+        if (!isset($params['shared_secret'])) {
+            $params['shared_secret'] = $this->config['shared_secret'];
+        }
+
+        // Validate and sanitize parameters
+        if ($this->config['paramValidationEnabled']) {
+            $params = $this->validateApiParameters($this->keys, $params);
+        }
+
+        // Add URI method and version to payload
+        $params['_method'] = $this->id;
+        $params['_version'] = $requestor->version;
 
         // Send request
         $response = $requestor->request('post', $this->id, $params);
 
         // Return result
-        $this->lastApiResponse = $response;
         return $response;
     }
 
@@ -293,7 +160,7 @@ class MaApi extends MaBaseClass
     }
 
     /**
-     * Validate authentication and argument parameters for an API.
+     * Validate parameters for an API.
      *
      * @param array $keys Array of required and optional 
      *  authentication and argument keys (string) for API method.
@@ -305,17 +172,12 @@ class MaApi extends MaBaseClass
     {
         // Assert API has defined an id/endpoint
         $this->assertApiId();
-        $this->assertRoleOutbound();
 
         // Assert API keys array structure is valid
         $this->assertKeysArrayValid($keys);
 
         // Assert keys array has minimum required optional parameters
         $this->assertKeysHasMinOptParams($keys, $params);
-
-        // Assert and set authentication parameters from Auth object
-        $params = $this->setAuthenticationParameters($keys, $params, 'req');
-        $params = $this->setAuthenticationParameters($keys, $params, 'opt');
 
         // Assert required argument parameters exist (non-authentication)
         $this->assertReqParameters($keys, $params);
@@ -348,18 +210,12 @@ class MaApi extends MaBaseClass
     {
         if ((!$keys) ||
             (!is_array($keys)) ||
-            (!isset($keys['auth'])) || 
-            (!is_array($keys['auth'])) ||
-            (!isset($keys['auth']['req'])) || 
-            (!is_array($keys['auth']['req'])) ||
-            (!isset($keys['auth']['opt'])) || 
-            (!is_array($keys['auth']['opt'])) ||
             (!isset($keys['args'])) || 
             (!is_array($keys['args'])) ||
             (!isset($keys['args']['req'])) || 
             (!is_array($keys['auth']['req'])) ||
             (!isset($keys['args']['opt'])) || 
-            (!is_array($keys['auth']['opt']))
+            (!is_array($keys['args']['opt']))
         ) {
             $msg = 'Invalid API keys provided. (HINT: Each '
                  . 'API class must define a $keys array with '
@@ -391,135 +247,6 @@ class MaApi extends MaBaseClass
                  . 'required and optional parameters.)';
             throw new ApiException($msg);
         }
-    }
-
-    /**
-     * Validate and set required authentication parameters from Auth object.
-     *
-     * @param array $keys Array of required and optional 
-     *  authentication and argument keys (string) for API method.
-     * @param array $params API specific parameters.
-     * @param string $type The type of authentication parameters to
-     *  process (optional or required).
-     *
-     * @return array Paramters with authentication parameters of $type set.
-     *
-     * @throws MyAllocator\phpsdkota\src\Exception\ApiAuthenticationException
-     */
-    private function setAuthenticationParameters(
-        $keys = null,
-        $params = null,
-        $type = 'req'
-    ) {
-        if (!empty($keys['auth'][$type])) {
-            if ($this->auth == null) {
-                $msg = 'No Auth object provided.  (HINT: Set your Auth data using '
-                     . '"$API->setAuth(Auth $auth)" or $API\' constructor.  '
-                     . 'See https://TODO for details.';
-                throw new ApiAuthenticationException($msg);
-            }
-
-            // Set authentication parameters
-            $auth_group = false;
-            foreach ($keys['auth'][$type] as $k) {
-                if (is_array($k) && !empty($k)) {
-                    /*
-                     * Different auth key groups may be required.
-                     * In these situations, must assert that each
-                     * key within an auth key group exists. Exits
-                     * once the first auth key group is validated.
-                     */
-
-                    if ($auth_group && $auth_group_validated) {
-                        /*
-                        * At this point an authentication group has been satisfied
-                        * and we don't need to process additional groups.
-                        */
-                        continue;
-                    }
-
-                    $auth_group = true;
-                    $auth_group_validated = true;
-                    foreach ($k as $g) {
-                        if (!isset($params[$g])) {
-                            $v = $this->auth->getAuthKeyVar($g);
-                            if (!$v) {
-                                $auth_group_validated = false;
-                                break;
-                            }
-                            $params[$g] = $v;
-                        }
-                    }
-                } else {
-                    if (!isset($params[$k])) {
-                        $v = $this->auth->getAuthKeyVar($k);
-                        if (!$v) {
-                            if ($type == 'req') {
-                                $msg = 'Authentication key `'.$k.'` is required. '
-                                     . 'HINT: Set your Auth data using "$API->'
-                                     . 'setAuth(Auth $auth)" or $API\' constructor. '
-                                     . 'See https://TODO for details.';
-                                throw new ApiAuthenticationException($msg);
-                            } else {
-                                // optional
-                                continue;
-                            }
-                        }
-                        $params[$k] = $v;
-                    }
-                }
-            }
-
-            // If keys configured with authentication groups, verify one was validated
-            if ($auth_group && !$auth_group_validated) {
-                $msg = 'A required authentication key group was not satisfied. '
-                     . '(HINT: Reference the $keys '
-                     . 'property at the top of the API class file for '
-                     . 'required and optional parameters.)';
-                throw new ApiAuthenticationException($msg);
-            }
-        }
-
-        return $params;
-    }
-
-    /**
-     * Set authentication parameters if authentication property set.
-     * This only runs if parameter validation is disabled and does
-     * not validate $keys.
-     *
-     * @param array $params API specific parameters.
-     *
-     * @return array Paramters with authentication parameters set.
-     */
-    private function setAuthenticationParametersNoValidation($params = null)
-    {
-        // Return if authentication property not set
-        if ($this->auth == null) {
-            return $params;
-        }
-
-        // Set parameters for previously configured auth properties
-        // Get property list from auth class
-        $auth_refl = new \ReflectionClass($this->auth);
-        $props = $auth_refl->getProperties(\ReflectionProperty::IS_PUBLIC);
-
-        /*
-         * Loop through property names to determine if configured in auth object.
-         * Add to parameters if set and does not already exist.
-         */
-        foreach ($props as $prop) {
-            $name = $prop->getName();
-            if (isset($this->auth->$name)) {
-                // Do not overwrite if parameter already included
-                $key = $this->auth->getAuthKeyByVar($name);
-                if (!isset($params[$key])) {
-                    $params[$key] = $this->auth->$name;
-                }
-            }
-        }
-
-        return $params;
     }
 
     /**
@@ -557,7 +284,7 @@ class MaApi extends MaBaseClass
      * Strip parameters not defined in API keys array.
      *
      * @param array $keys Array of required and optional 
-     *  authentication and argument keys (string) for API method.
+     *  argument keys (string) for API method.
      * @param array $params API specific parameters.
      *
      * @return array API parameters with unknown parameters
@@ -566,8 +293,6 @@ class MaApi extends MaBaseClass
     private function removeUnknownParameters($keys, $params)
     {
         $valid_keys = array_merge(
-            $keys['auth']['req'],
-            $keys['auth']['opt'],
             $keys['args']['req'],
             $keys['args']['opt']
         );

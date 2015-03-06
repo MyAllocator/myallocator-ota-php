@@ -23,7 +23,8 @@ class Requestor extends MaBaseClass
     /**
      * @var string The MyAllocator API base url.
      */
-    private $apiBase = 'api.myallocator.com';
+    //private $apiBase = 'api.myallocator.com';
+    private $apiBase = 'TODO';
 
     /**
      * @var string The API version. 
@@ -60,7 +61,7 @@ class Requestor extends MaBaseClass
      * @param string $url API endpoint.
      * @param array|null $params API parameters.
      *
-     * @return mixed API response, code, headers (XML only).
+     * @return mixed API response, code, headers.
      *
      * @throws MyAllocator\phpsdkota\src\Exception\ApiException
      */
@@ -78,64 +79,47 @@ class Requestor extends MaBaseClass
         }
 
         /*
-         * Send request based on dataFormat. Format 'array'
-         * is json_encoded and sent as json.
+         * Json encode and send request based on dataFormat.
          */
-        $this->debug_echo("\nRequest (".$this->config['dataFormat']."):\n");
-        switch ($this->config['dataFormat']) {
-            case 'array':
-                // Set data method
-                $this->state['method'] = $params['_method'];
-                // Encode parameters
-                $this->debug_print_r($params); 
-                try {
-                    $params = json_encode($params);
-                } catch (Exception $e) {
-                    $msg = 'JSON Encode Error - Invalid parameters: '.serialize($params);
-                    throw new ApiException($msg, $this->state);
-                }
-                $this->debug_echo("\nRequest (json):\n");
-                // Intentionally dropping into json case
-            case 'json':
-                $this->debug_echo($params); 
-                // Generate absolute url
-                $absUrl = $this->apiUrl($url, 'json');
-                // Format params for curl request POSTFIELDS
-                $params = array('json' => $params);
-                // Send request
-                $this->curlRequest(
-                    $method,
-                    $absUrl,
-                    $params
-                );
-                // Process response
-                $this->interpretResponseJSON();
-                break;
-            case 'xml':
-                $this->debug_echo($params); 
-                // Generate absolute url
-                $absUrl = $this->apiUrl($url, 'xml');
-                // Format params for curl request POSTFIELDS
-                $params = 'xmlRequestString='.urlencode($params);
-                // Send request
-                $this->curlRequest(
-                    $method,
-                    $absUrl,
-                    $params
-                );
-                // Process response
-                $this->interpretResponseXML();
-                break;
-            default:
-                $msg = 'Invalid data format: '.$this->config['dataFormat'];
-                throw new ApiException($msg, $this->state);
+        $this->debug_echo("\nRequest:\n");
+
+        // Set data method
+        $this->state['method'] = $params['_method'];
+
+        // Encode parameters
+        $this->debug_print_r($params); 
+
+        try {
+            $params = json_encode($params);
+        } catch (Exception $e) {
+            $msg = 'JSON Encode Error - Invalid parameters: '.serialize($params);
+            throw new ApiException($msg, $this->state);
         }
+
+        $this->debug_echo("\nRequest (json):\n");
+        $this->debug_echo($params); 
+
+        // Generate absolute url
+        $absUrl = $this->apiUrl($url, 'json');
+
+        // Format params for curl request POSTFIELDS
+        $params = array('json' => $params);
+
+        // Send request
+        $this->curlRequest(
+            $method,
+            $absUrl,
+            $params
+        );
+
+        // Process response
+        $this->interpretResponse();
 
         return $this->formatResponse();
     }
 
     /**
-     * Send a JSON or XML CURL request.
+     * Send a JSON CURL request.
      *
      * @param string $method HTTP method.
      * @param string $absUrl The absolute endpoint URL.
@@ -203,52 +187,28 @@ class Requestor extends MaBaseClass
     /**
      * Process a JSON CURL response.
      *
-     * @return mixed API response. The format depends on dataFormat.
+     * @return mixed API response.
      *
      * @throws MyAllocator\phpsdkota\src\Exception\ApiException
      */
-    private function interpretResponseJSON()
+    private function interpretResponse()
     {
         $this->debug_echo("\n\nResponse (json):\n");
         $this->debug_print_r($this->state['response']['body_raw']);
 
-        // Convert response from json to array format if required
-        if ($this->config['dataFormat'] == 'array') {
-            try {
-                $this->state['response']['body'] = json_decode(
-                    $this->state['response']['body_raw'],
-                    true
-                ); 
-            } catch (Exception $e) {
-                $msg = 'Invalid response body from API: '.$this->state['response']['body_raw']
-                     . '(HTTP response code was '.$this->state['response']['code'].')';
-                throw new ApiException($msg, $this->state);
-            }
-            $this->debug_echo("\n\nResponse (array):\n"); 
-            $this->debug_print_r($this->state['response']['body']); 
-        } else {
-            $this->state['response']['body'] = $this->state['response']['body_raw'];
+        // Convert response from json to array format
+        try {
+            $this->state['response']['body'] = json_decode(
+                $this->state['response']['body_raw'],
+                true
+            ); 
+        } catch (Exception $e) {
+            $msg = 'Invalid response body from API: '.$this->state['response']['body_raw']
+                 . '(HTTP response code was '.$this->state['response']['code'].')';
+            throw new ApiException($msg, $this->state);
         }
-
-        if ($this->state['response']['code'] < 200 ||
-            $this->state['response']['code'] >= 300
-        ) {
-            $this->handleHttpError();
-        }
-
-        return $this->state;
-    }
-
-    /**
-     * Process a XML CURL response.
-     *
-     * @return mixed API response. The format depends on dataFormat.
-     */
-    private function interpretResponseXML()
-    {
-        $this->debug_echo("\n\nResponse (xml):\n".$this->state['response']['body_raw']);
-
-        $this->state['response']['body'] = $this->state['response']['body_raw'];
+        $this->debug_echo("\n\nResponse (array):\n"); 
+        $this->debug_print_r($this->state['response']['body']); 
 
         if ($this->state['response']['code'] < 200 ||
             $this->state['response']['code'] >= 300

@@ -19,21 +19,12 @@ class MaBaseClass
     protected $config = null;
 
     /**
-     * Class contructor attempts to assign configuration parameters.
-     *
-     * @param mixed $cfg API configuration potentially containing a
-     *        'cfg' key with configurations to overwrite Config/MaConfig.php.
+     * Class contructor
      */
-    public function __construct($cfg = null)
+    public function __construct()
     {
-        // Load configuration from parameters or file
-        if (isset($cfg) && isset($cfg['cfg'])) {
-            $this->config = $this->sanitizeCfg($cfg['cfg']);
-        } else {
-            // Throws exception if cannot find config file
-            $cfg = require(dirname(__FILE__) . '/Config/MaConfig.php');
-            $this->config = $this->sanitizeCfg($cfg);
-        }
+        // Load configuration from file
+        $this->config = require(dirname(__FILE__) . '/Config/MaConfig.php');
     }
 
     /**
@@ -62,76 +53,6 @@ class MaBaseClass
     public function getConfig($key)
     {
         return (isset($this->config[$key])) ? $this->config[$key] : null;
-    }
-
-    /**
-     * Sanitize parameter config data. Ensure keys/values are valid data.
-     * Unknown keys are removed.
-     *
-     * @param array $cfg API configurations. 
-     *
-     * @return array Configuration containing a valid configuration set. It
-     *  may or may not include the supplied configuration parameters,
-     *  depending on their validity.
-     */
-    private function sanitizeCfg($cfg)
-    {
-        $sanitize = array(
-            'paramValidationEnabled' => array(
-                'type' => 'boolean',
-                'default' => true,
-                'valid' => array(true, false)
-            ),
-            'dataFormat' => array(
-                'type' => 'string',
-                'default' => 'array',
-                'valid' => array('array', 'json', 'xml')
-            ),
-            'dataResponse' => array(
-                'type' => 'array',
-                'default' => array('timeRequest', 'timeResponse', 'request'),
-                'valid' => array('timeRequest', 'timeResponse', 'request')
-            ),
-            'httpErrorThrowsException' => array(
-                'type' => 'boolean',
-                'default' => false,
-                'valid' => array(true, false)
-            ),
-            'debugsEnabled' => array(
-                'type' => 'boolean',
-                'default' => false,
-                'valid' => array(true, false)
-            )
-        );
-
-        $result = array();
-        foreach ($sanitize as $k => $v) {
-            if ($v['type'] == 'array') {
-                if (!isset($cfg[$k]) || !is_array($cfg[$k])) {
-                    // Set to default if not set or invalid value
-                    $result[$k] = $v['default'];
-                } else {
-                    // Validate array keys
-                    foreach ($cfg[$k] as $index => $item) {
-                        if (!in_array($item, $v['valid'])) {
-                            unset($cfg[$k][$index]);
-                        }
-                    }
-                    // Set to parameter if value is set and valid
-                    $result[$k] = $cfg[$k];
-                }
-            } else {
-                if (!isset($cfg[$k]) || !in_array($cfg[$k], $v['valid'], true)) {
-                    // Set to default if not set or invalid value
-                    $result[$k] = $v['default'];
-                } else {
-                    // Set to parameter if value is set and valid
-                    $result[$k] = $cfg[$k];
-                }
-            }
-        }
-
-        return $result;
     }
 
     /**

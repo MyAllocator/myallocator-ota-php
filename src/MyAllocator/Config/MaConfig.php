@@ -9,8 +9,10 @@
  * @link        https://github.com/MyAllocator/myallocator-php-sdk-ota
  */
 
+// TODO update comments
 return array(
     'shared_secret' => 'test',
+    'ota_cid' => 'test',
 
     /*
      * Enable/Disable basic request parameter validation.
@@ -30,29 +32,6 @@ return array(
      * Available values: true, false
      */ 
     'paramValidationEnabled' => true, // true, false
-
-    /*
-     * The in/out data format from your code to this SDK. This data format
-     * governs the format of the request to MyAllocator and the
-     * response to be returned to you. The following table
-     * illustrates the formats used for the request flow based on
-     * dataFormat.
-     *
-     *      you->SDK(dataFormat)    SDK->MA     MA->SDK     SDK->you
-     *      --------------------    -------     -------     --------
-     *      array                   json        json        array
-     *      json                    json        json        json
-     *      xml                     xml         xml         xml
-     *
-     * Note, parameter validation only supports array and json data formats.
-     * For json data validation, the data must be decoded and re-encoded after
-     * validation. If you do not wish to experience the cost, disable
-     * 'paramValidationEnabled' above. For xml data, the raw request is sent
-     * to MyAllocator and raw response returned to you.
-     *
-     * Available values: 'array', 'json', 'xml'
-     */
-    'dataFormat' => 'array',
 
     /**
      * Define what data you prefer to be included in Api responses.
