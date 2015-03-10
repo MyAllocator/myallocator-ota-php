@@ -1,6 +1,6 @@
 <?php
 /**
- * MyAllocator BuildToUs Inbound API Receiver
+ * MyAllocator BuildToUs Inbound API Receiver (Composer install)
  *
  * @package     myallocator/myallocator-php-sdk-ota
  * @author      Nathan Helenihi <support@myallocator.com>
@@ -9,7 +9,7 @@
  * @link        https://github.com/MyAllocator/myallocator-php-sdk-ota
  */
 
-require_once(dirname(__FILE__) . '/../../src/MyAllocator.php');
+require_once(dirname(__FILE__) . '/vendor/autoload.php');
 require_once(dirname(__FILE__) . '/MaInboundInterfaceStub.php');
 
 use MyAllocator\phpsdkota\src\Api\Inbound\MaRouter;

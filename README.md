@@ -26,7 +26,7 @@ PHP 5.3.2 and later.
 
 Please see http://myallocator.github.io/myallocator-ota-php-docs/ for the complete and up-to-date SDK documentation.
 
-## Composer [TODO]
+## Composer Installation
 
 You can install via composer. Add the following to your project's `composer.json`.
 
@@ -52,17 +52,54 @@ Or manually:
 
 Grab the latest version of the SDK:
 
-    git clone https://github.com/MyAllocator/myallocator-php-sdk.git
+    git clone https://github.com/MyAllocator/myallocator-ota-php.git
 
 To use the bindings, add the following to a PHP script:
 
-    require_once('/path/to/myallocator-php-sdk-ota/src/MyAllocator.php');
+    require_once('/path/to/myallocator-ota-php/src/MyAllocator.php');
 
 ## Getting Started
 
-A simple usage example with composer:
+#### Installation and usage example with composer installation:
 
-[TODO]
+    root@nate:/var/www# mkdir test
+    root@nate:/var/www# cd test/
+    root@nate:/var/www/test# echo '{"require": {"myallocator/myallocator-php-sdk-ota": "1.*"}}' > composer.json
+    root@nate:/var/www/test# composer install
+    Loading composer repositories with package information
+    Installing dependencies (including require-dev)
+      - Installing myallocator/myallocator-php-sdk-ota (1.0.0)
+        Downloading: 100%         
+    Writing lock file
+    Generating autoload files
+    root@nate:/var/www/test# cp vendor/myallocator/myallocator-php-sdk-ota/examples/Receiver/* .
+
+Configure your hosts webserver at your desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
+
+    root@nate:/var/www/test# curl -v -H "Accept: application/json" -X POST -H "Content-Type: application/json" -d '{"verb":"HealthCheck", "mya_property_id":"123", "ota_property_id":"321", "shared_secret":"test"}' http://{your_ip}:{your_port}/
+
+#### Installation and usage example with manual installation:
+
+    root@nate:/var/www# mkdir -p test/lib
+    root@nate:/var/www# cd test/lib/
+    root@nate:/var/www/test/lib# git clone https://github.com/MyAllocator/myallocator-ota-php.git
+    Cloning into 'myallocator-ota-php'...
+    remote: Counting objects: 111, done.
+    remote: Compressing objects: 100% (72/72), done.
+    remote: Total 111 (delta 38), reused 101 (delta 31), pack-reused 0
+    Receiving objects: 100% (111/111), 38.22 KiB | 0 bytes/s, done.
+    Resolving deltas: 100% (38/38), done.
+    Checking connectivity... done.
+    root@nate:/var/www/test/lib# cd ..
+    root@nate:/var/www/test# cp lib/myallocator-ota-php/examples/Receiver/* .
+
+Edit require_once autoload in line 12 to:
+
+    require_once(dirname(__FILE__) . '/lib/myallocator-ota-php/src/MyAllocator.php');
+
+Configure your hosts webserver at your desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
+
+    root@nate:/var/www/test# curl -v -H "Accept: application/json" -X POST -H "Content-Type: application/json" -d '{"verb":"HealthCheck", "mya_property_id":"123", "ota_property_id":"321", "shared_secret":"test"}' http://{your_ip}:{your_port}/
 
 ## Configuration
 
@@ -130,27 +167,10 @@ Requests may also return any of the exceptions defined in `src/MyAllocator/Excep
 
 ## Examples
 
-[TODO]
+Examples can be found in the `examples/` directory.
 
 ## Tests
 
 You can run phpunit tests from the top directory:
 
     vendor/bin/phpunit --debug
-
-#### Setup Local Environment Variables
-
-[TODO]
-
-Most of the test cases use local environment variables and will be skipped if not provided. Export the following local environment variables from your data to use with the related test cases:
-
-    myallocator-sdk-php$ cat test/ENVIRONMENT_CREDENTIALS
-    #!/bin/bash
-    export ma_vendorId=xxxxx
-    export ma_vendorPassword=xxxxx
-    export ma_userId=xxxxx
-    export ma_userPassword=xxxxx
-    export ma_userToken=xxxxx
-    export ma_propertyId=xxxxx
-    export ma_PMSUserId=xxxxx
-    myallocator-sdk-php$ source test/ENVIRONMENT_CREDENTIALS
