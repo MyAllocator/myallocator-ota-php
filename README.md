@@ -1,16 +1,18 @@
 # !!! This package is still in development. Don't use it quite yet !!!
 
-# myallocator-php-sdk-ota
+# myallocator-ota-php
 
-MyAllocator BuildToUs API PHP SDK (JSON). Online Travel Agencies (OTA's) can use this SDK to quickly and reliably integrate with the MyAllocator BuildToUs API to enable distribution into their systems.
+MyAllocator BuildToUs API PHP SDK (JSON). Online Travel Agencies (OTA's) may use this SDK to quickly and reliably integrate with the MyAllocator BuildToUs API to enable distribution into their systems.
 
-MyAllocator BuildToUs API Version: 201408
+The MyAllocator BuildToUs API supports many OTA-inbound API's but only one OTA-outbound API (NotifyBooking). As a result, this SDK currently only implements the OTA-inbound API's defined in the MyAllocator BuildToUs API Documentation. You may implement the simple HTTP GET NotifyBooking API directly in your code base.
 
-MyAllocator BuildToUs API PHP SDK Documentation [http://myallocator.github.io/myallocator-php-sdk-ota-docs/] [TODO]
+Note, this is not the PMS PHP SDK for PMS's. The PMS PHP SDK can be found at https://github.com/MyAllocator/myallocator-pms-php
 
-MyAllocator BuildToUs API Documentation [http://myallocator.github.io/apidocs/] [TODO]
+MyAllocator BuildToUs API Version: 201503
 
-MyAllocator BuildToUs API Integration Guide [TODO]
+MyAllocator BuildToUs API Documentation & Integration Guide [TODO]
+
+MyAllocator BuildToUs API PHP SDK Documentation [http://myallocator.github.io/myallocator-ota-php-docs/]
 
 MyAllocator [https://www.myallocator.com/]
 
@@ -22,7 +24,7 @@ PHP 5.3.2 and later.
 
 ## Documentation
 
-Please see http://myallocator.github.io/myallocator-php-sdk-ota-docs/ for the complete and up-to-date SDK documentation.
+Please see http://myallocator.github.io/myallocator-ota-php-docs/ for the complete and up-to-date SDK documentation.
 
 ## Composer [TODO]
 

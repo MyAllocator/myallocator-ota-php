@@ -18,6 +18,24 @@ use MyAllocator\phpsdkota\src\Object\MaResponse;
 class MaInboundInterfaceStub implements \MyAllocator\phpsdkota\src\Api\Inbound\MaInboundInterface
 {
     /**
+     * Authenticate Myallocator/OTA property.
+     *
+     * After myallocator calls setupProperty, OTA stores mya_property_id to ota_property_id mapping.
+     * On each request, validate the 1:1 mya_property_id to ota_property_id mapping.
+     *
+     * args['mya_property_id']* string The property_id in MyAllocator.
+     * args['ota_property_id']* string The property_id in OTA.
+     *
+     * @param array $args (See above)
+     *
+     * @return \MyAllocator\phpsdkota\src\Object\MaResponse
+     */
+    public function authenticateProperty($args)
+    {
+        return new \MyAllocator\phpsdkota\src\Object\MaResponse();
+    }
+
+    /**
      * Setup a new property on OTA.
      *
      * args['verb']*            string Defines the API endpoint method.
@@ -108,5 +126,15 @@ class MaInboundInterfaceStub implements \MyAllocator\phpsdkota\src\Api\Inbound\M
     public function ARIUpdate($args)
     {
         return new \MyAllocator\phpsdkota\src\Object\MaResponse();
+    }
+
+    /**
+     * Inbound API logs. Implement a logging method here to capture the inbound API logs.
+     *
+     * @param string $str The log.
+     */
+    public function log($str, $data = null)
+    {
+        return;
     }
 }

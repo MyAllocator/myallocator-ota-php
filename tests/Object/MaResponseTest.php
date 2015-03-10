@@ -86,7 +86,6 @@ class MaResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($obj->toArray(), array(
             'success' => false,
-            'data' => null,
             'errors' => array(
                 array(
                     'id' => MA_OTA_ERR_JSON_INVALID,

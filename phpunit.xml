@@ -14,9 +14,8 @@
         <exclude>broken</exclude>
     </groups>
     <testsuites>
-        <testsuite name="MyAllocator BuildToUs PHP SDK JSON API Inbound Test Suite">
-            <directory suffix=".php">./tests/json/Api/Inbound</directory>
-            <exclude>./tests/json/Api/LoopBookingCreateTest.php</exclude>
+        <testsuite name="MyAllocator BuildToUs PHP SDK Test Suite">
+            <directory suffix=".php">./tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

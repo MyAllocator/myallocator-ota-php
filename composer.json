@@ -21,8 +21,7 @@
     "autoload": {
         "psr-4": {
             "MyAllocator\\phpsdkota\\src\\": "src/MyAllocator",
-            "MyAllocator\\phpsdkota\\tests\\json\\": "tests/json",
-            "MyAllocator\\phpsdkota\\tests\\xml\\": "tests/xml"
+            "MyAllocator\\phpsdkota\\tests\\": "tests"
         }
     }
 }

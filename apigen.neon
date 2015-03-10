@@ -3,5 +3,5 @@ source:
 	
 destination: docs
 title: MyAllocator BuildToUs API PHP SDK for OTA's
-baseUrl: http://myallocator.github.io/myallocator-php-sdk-ota-docs/
+baseUrl: http://myallocator.github.io/myallocator-ota-php-docs/
 templateTheme: bootstrap

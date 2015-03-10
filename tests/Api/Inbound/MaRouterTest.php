@@ -257,9 +257,7 @@ class MaRouterTest extends \PHPUnit_Framework_TestCase
             'guid' => '123',
             'mya_property_id' => 1,
             'ota_property_id' => 1,
-            'ota_room_id' => 1,
-            'Rates' => 1,
-            'Availability' => 1
+            'Inventory' => 1
         );
         $rsp = $obj->processRequest(json_encode($request));
         $this->assertEquals(true, $rsp['success']);
