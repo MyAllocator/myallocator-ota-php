@@ -27,14 +27,9 @@ class MaRouter
     protected $apis = null;
 
     /**
-     * @var array MyAllocator API configuration.
-     */
-    protected $config = null;
-
-    /**
      * @var array Interface to OTA backend.
      */
-    protected $interface = null;
+    protected $ota_intf = null;
 
     /**
      * Class contructor.
@@ -52,7 +47,7 @@ class MaRouter
         $this->apis = require(dirname(__FILE__) . '/../../Config/MaApisInbound.php');
 
         // Set inbound interface
-        $this->interface = $interface;
+        $this->ota_intf = $interface;
     }
 
     /**
@@ -66,7 +61,7 @@ class MaRouter
      */
     public function processRequest($post_body = null)
     {
-        $rsp = new \MyAllocator\phpsdkota\src\Object\MaResponse();
+        $rsp = new \MyAllocator\phpsdkota\src\Object\MaResponse($this->ota_intf);
 
         // Validate arg
         if (!$post_body) {
@@ -75,6 +70,7 @@ class MaRouter
 
         // Get post body
         try {
+            $this->ota_intf->log('Request',$post_body);
             $request = $this->decode($post_body);
         } catch (\Exception $e) {
             return $rsp->error(MA_OTA_ERR_JSON_INVALID, $e->getMessage())->toArray();
@@ -85,7 +81,7 @@ class MaRouter
             return $rsp->error(MA_OTA_ERR_JSON_INVALID)->toArray();
         }
 
-        // Authentication
+        // MA:OTA authentication
         if (!isset($request['shared_secret'])) {
             return $rsp->error(MA_OTA_ERR_AUTH_INVALID)->toArray();
         } else {
@@ -119,25 +115,31 @@ class MaRouter
             }
         }
 
+        // MA:OTA property validation
+        $rsp = $this->ota_intf->authenticateProperty($request);
+        if (!$rsp->success) {
+            return $rsp->response();
+        }
+
         // Invoke method
         switch ($request['verb']) {
             case 'HealthCheck':
                 $rsp->success();
                 break;
             case 'SetupProperty':
-                $rsp = $this->interface->setupProperty($request);
+                $rsp = $this->ota_intf->setupProperty($request);
                 break;
             case 'GetRoomTypes':
-                $rsp = $this->interface->getRoomTypes($request);
+                $rsp = $this->ota_intf->getRoomTypes($request);
                 break;
             case 'GetBookingId':
-                $rsp = $this->interface->getBookingId($request);
+                $rsp = $this->ota_intf->getBookingId($request);
                 break;
             case 'GetBookingList':
-                $rsp = $this->interface->getBookingList($request);
+                $rsp = $this->ota_intf->getBookingList($request);
                 break;
             case 'ARIUpdate':
-                $rsp = $this->interface->ARIUpdate($request);
+                $rsp = $this->ota_intf->ARIUpdate($request);
                 break;
             default: 
                 $rsp->error(MA_OTA_ERR_VERB_INVALID);
@@ -148,9 +150,11 @@ class MaRouter
         if (get_class($rsp) != 'MyAllocator\phpsdkota\src\Object\MaResponse') {
             $rsp = new \MyAllocator\phpsdkota\src\Object\MaResponse();
             $rsp->error(MA_OTA_ERR_RSP_INVALID);
+        } else {
+            $rsp->setLogger($this->ota_intf);
         }
 
-        return $rsp->toArray();
+        return $rsp->response();
     }
 
     private function decode($json)

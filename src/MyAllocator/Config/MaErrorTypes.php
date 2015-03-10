@@ -10,12 +10,14 @@
  */
 
 if (!defined('MA_OTA_ERR')) {
-    define('MA_OTA_ERR',                    100);
-    define('MA_OTA_ERR_JSON_INVALID',       101);
-    define('MA_OTA_ERR_ARGS_INVALID',       103);
-    define('MA_OTA_ERR_AUTH_INVALID',       104);
-    define('MA_OTA_ERR_VERB_INVALID',       105);
-    define('MA_OTA_ERR_RSP_INVALID',        106);
+    define('MA_OTA_ERR',                        100);
+    define('MA_OTA_ERR_JSON_INVALID',           101);
+    define('MA_OTA_ERR_ARGS_INVALID',           103);
+    define('MA_OTA_ERR_AUTH_INVALID',           104);
+    define('MA_OTA_ERR_AUTH_PROPERTY_INVALID',  105);
+    define('MA_OTA_ERR_VERB_INVALID',           106);
+    define('MA_OTA_ERR_RSP_INVALID',            107);
+    define('MA_OTA_ERR_BOOKING_NONEXIST',       108);
 }
 
 return array(
@@ -35,6 +37,10 @@ return array(
         'type' => 'api',
         'msg' => 'Invalid or missing authentication arguments'
     ),
+    MA_OTA_ERR_AUTH_PROPERTY_INVALID => array(
+        'type' => 'api',
+        'msg' => 'Failed to authenticate the property'
+    ),
     MA_OTA_ERR_VERB_INVALID => array(
         'type' => 'api',
         'msg' => 'Invalid or missing verb argument'
@@ -43,4 +49,8 @@ return array(
         'type' => 'api',
         'msg' => 'OTA is attempting to respond with invalid response'
     ),
+    MA_OTA_ERR_BOOKING_NONEXIST => array(
+        'type' => 'api',
+        'msg' => 'The booking with id does not exist'
+    )
 );

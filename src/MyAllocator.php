@@ -22,23 +22,8 @@ if (!function_exists('mb_detect_encoding')) {
   throw new Exception('MyAllocator needs the Multibyte String PHP extension.');
 }
 
-// Initial Dependencies
-require_once(dirname(__FILE__) . '/MyAllocator/MaBaseClass.php');
-require_once(dirname(__FILE__) . '/MyAllocator/Exception/MaException.php');
-require_once(dirname(__FILE__) . '/MyAllocator/Api/MaApi.php');
-
 // Configuration
 foreach (glob(dirname(__FILE__) . '/MyAllocator/Config/*.php') as $file) {
-    require_once($file);
-}
-
-// Exceptions
-foreach (glob(dirname(__FILE__) . '/MyAllocator/Exception/*.php') as $file) {
-    require_once($file);
-}
-
-// Utilities
-foreach (glob(dirname(__FILE__) . '/MyAllocator/Util/*.php') as $file) {
     require_once($file);
 }
 
@@ -47,11 +32,7 @@ foreach (glob(dirname(__FILE__) . '/MyAllocator/Object/*.php') as $file) {
     require_once($file);
 }
 
-// APIs
+// Inbound APIs
 foreach (glob(dirname(__FILE__) . '/MyAllocator/Api/Inbound/*.php') as $file) {
-    require_once($file);
-}
-
-foreach (glob(dirname(__FILE__) . '/MyAllocator/Api/Outbound/*.php') as $file) {
     require_once($file);
 }

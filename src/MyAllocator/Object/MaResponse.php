@@ -10,6 +10,7 @@
  */
 
 namespace MyAllocator\phpsdkota\src\Object;
+use MyAllocator\phpsdkota\src\Api\Inbound\MaInboundInterface;
 use MyAllocator\phpsdkota\src\Object\MaError;
 
 class MaResponse
@@ -28,6 +29,24 @@ class MaResponse
      * @var array Array of errors. [{id:'', type:'', msg:''}, ...]
      */
     public $errors = array();
+
+    /**
+     * @var array Interface to OTA backend. Only used for logging here.
+     */
+    protected $logger = null;
+
+    /**
+     * Class contructor.
+     *
+     * @param \MyAllocator\phpsdkota\src\Api\Inbound\MaInboundInterface
+     *  $interface The object implementing MaInboundInterface to invoke
+     *  backend functionality.
+     */
+    public function __construct(MaInboundInterface $logger = null)
+    {
+        // Set inbound interface
+        $this->logger = $logger;
+    }
 
     /**
      * Set response to success and return an object response.
@@ -54,8 +73,22 @@ class MaResponse
     public function error($id, $data = null)
     {
         $this->success = false;
-        $this->errors[] = new \MyAllocator\phpsdkota\src\Object\MaError($id, $data);
+        $error = new \MyAllocator\phpsdkota\src\Object\MaError($id, $data);
+        $this->log("Error", json_encode($error->toArray()));
+        $this->errors[] = $error;
         return $this;
+    }
+
+    /**
+     * Return array response.
+     *
+     * @return array Response array.
+     */
+    public function response()
+    {
+        $rsp = $this->toArray();
+        $this->log("Response", json_encode($rsp));
+        return $rsp; 
     }
 
     /**
@@ -67,9 +100,15 @@ class MaResponse
     {
         $response = array(
             'success' => $this->success,
-            'data' => $this->data,
             'errors' => array()
         );
+
+        // Add data to top level
+        if ($this->data) {
+            foreach($this->data as $k => $v) {
+                $response[$k] = $v;
+            }
+        }
 
         foreach ($this->errors as $err) {
             $response['errors'][] = $err->toArray();
@@ -80,11 +119,23 @@ class MaResponse
             $response['errors'] = null;
         }
 
-        // If no data, set data null
-        if ($response['data'] === null) {
-            $response['data'] = null;
-        }
-
         return $response;
+    }
+
+    /**
+     * Set interface for logging.
+     *
+     * @return array Response array.
+     */
+    public function setLogger(MaInboundInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    private function log($str, $data = null)
+    {
+        if ($this->logger) {
+            $this->logger->log($str, $data);
+        }
     }
 }

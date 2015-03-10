@@ -1,6 +1,6 @@
 <?php
 /**
- * MyAllocator BuildToUs PHP SDK Inbound API Interface
+ * MyAllocator BuildToUs PHP SDK Inbound API Interface (MA -> OTA)
  *
  * @package     myallocator/myallocator-php-sdk-ota
  * @author      Nathan Helenihi <support@myallocator.com>
@@ -11,11 +11,23 @@
 
 namespace MyAllocator\phpsdkota\src\Api\Inbound;
 
-/**
- * Inbound API interface. (MA -> OTA)
- */
 interface MaInboundInterface
 {
+    /**
+     * Authenticate Myallocator/OTA property.
+     *
+     * After myallocator calls setupProperty, OTA stores mya_property_id to ota_property_id mapping.
+     * On each request, validate the 1:1 mya_property_id to ota_property_id mapping.
+     *
+     * args['mya_property_id']* string The property_id in MyAllocator.
+     * args['ota_property_id']* string The property_id in OTA.
+     *
+     * @param array $args (See above)
+     *
+     * @return \MyAllocator\phpsdkota\src\Object\MaResponse
+     */
+    public function authenticateProperty($args);
+
     /**
      * Setup a new property on OTA.
      *
@@ -85,12 +97,18 @@ interface MaInboundInterface
      * args['mya_property_id']* string The property_id in MyAllocator.
      * args['ota_property_id']* string The property_id in OTA.
      * args['ota_room_id']*     string The room_id in OTA.
-     * args['Rates']*           string The rates to update.
-     * args['Availability']*    string The availability to update.
+     * args['Inventory']*       string The rates to update.
      *
      * @param array $args (See above)
      *
      * @return \MyAllocator\phpsdkota\src\Object\MaResponse
      */
     public function ARIUpdate($args);
+
+    /**
+     * Inbound API logs. Implement a logging method here to capture the inbound API logs.
+     *
+     * @param string $str The log.
+     */
+    public function log($str);
 }

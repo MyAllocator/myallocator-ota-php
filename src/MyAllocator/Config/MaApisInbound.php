@@ -22,35 +22,37 @@ return array(
         'args' => array(
             'req' => array(
                 'verb',
-                'guid',
                 'mya_property_id',
                 'ota_property_id',
                 'ota_regcode'
             ),
-            'opt' => array()
+            'opt' => array(
+                'guid'
+            )
         )
     ),
     'GetRoomTypes' => array(
         'args' => array(
             'req' => array(
                 'verb',
-                'guid',
                 'mya_property_id',
                 'ota_property_id',
             ),
-            'opt' => array()
+            'opt' => array(
+                'guid'
+            )
         )
     ),
     'GetBookingId' => array(
         'args' => array(
             'req' => array(
                 'verb',
-                'guid',
                 'mya_property_id',
                 'ota_property_id',
                 'booking_id'
             ),
             'opt' => array(
+                'guid',
                 'booking_id_version'
             )
         )
@@ -59,14 +61,11 @@ return array(
         'args' => array(
             'req' => array(
                 'verb',
-                'guid',
                 'mya_property_id',
                 'ota_property_id',
-                'start_ts',
-                'end_ts'
             ),
             'opt' => array(
-                'pagination_token'
+                'guid'
             )
         )
     ),
@@ -74,14 +73,13 @@ return array(
         'args' => array(
             'req' => array(
                 'verb',
-                'guid',
                 'mya_property_id',
                 'ota_property_id',
-                'ota_room_id',
-                'Rates',
-                'Availability'
+                'Inventory'
             ),
-            'opt' => array()
+            'opt' => array(
+                'guid'
+            )
         )
     )
 );
