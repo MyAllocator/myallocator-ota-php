@@ -115,9 +115,9 @@ Set `debugsEnabled` to true in `src/MyAllocator/Config/Config.php` to display re
 
 ## Integration
 
-This SDK is meant to be installed in the OTA's environment to act as an inbound API receiver for MyAllocator. It is not required for BuildToUs API integration, however, if an OTA is integrating via PHP we highly recommend utilizing the sdk to minimize your integration time and costs.
+This SDK is meant to be installed in the OTA's environment to act as an inbound API receiver for MyAllocator. It is not required for BuildToUs API integration, however, if an OTA is integrating via PHP we highly recommend utilizing the SDK to minimize integration time and costs.
 
-The SDK can be broken into three primary parts, the receiver, SDK library, and backend interface (to be implemented by OTA).
+The SDK consists of three primary parts: the receiver, SDK library, and backend interface (to be implemented by OTA).
 
 #### Receiver
 
@@ -129,7 +129,7 @@ The SDK library is located at `src/MyAllocator` and consists of the inbound API 
 
 #### Backend Interface
 
-The SDK library includes a backend interface definition location at `src/MyAllocator/Api/Inbound/MaInboundInterface.php` which must be implemented by your environment so that the router (MaRouter.php) may forward requests to your backend system. You must instantiate an object of the class that implements this interface and pass it into the MaRouter object's construct during instantiation. Take a look at `examples/Receiver/MaInboundInterfaceStub.php` for a stub/example interface implementation and `examples/Receiver/MaReceiver.php` for how it is instantiated and passed into MaRouter.
+The SDK library includes a backend interface definition located at `src/MyAllocator/Api/Inbound/MaInboundInterface.php` which must be implemented by your environment so that the router (`MaRouter.php`) may forward requests to your backend system. You must instantiate an object of the class that implements this interface and pass it into the MaRouter object's construct during instantiation. Take a look at `examples/Receiver/MaInboundInterfaceStub.php` for a stub/example interface implementation and `examples/Receiver/MaReceiver.php` for how it is instantiated and passed into MaRouter.
 
 It is worth explicitly noting, the backend interface implementations must return an MaResponse object to the calling router (as suggested by the docblocks).
 
