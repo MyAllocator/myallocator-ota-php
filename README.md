@@ -74,7 +74,7 @@ To use the bindings, add the following to a PHP script:
     Generating autoload files
     root@nate:/var/www/test# cp vendor/myallocator/myallocator-php-sdk-ota/examples/Receiver/* .
 
-Configure your hosts webserver at your desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
+Configure your host's webserver at the desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
 
     root@nate:/var/www/test# curl -v -H "Accept: application/json" -X POST -H "Content-Type: application/json" -d '{"verb":"HealthCheck", "mya_property_id":"123", "ota_property_id":"321", "shared_secret":"test"}' http://{your_ip}:{your_port}/
 
@@ -97,73 +97,41 @@ Edit require_once autoload in line 12 to:
 
     require_once(dirname(__FILE__) . '/lib/myallocator-ota-php/src/MyAllocator.php');
 
-Configure your hosts webserver at your desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
+Configure your host's webserver at the desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
 
     root@nate:/var/www/test# curl -v -H "Accept: application/json" -X POST -H "Content-Type: application/json" -d '{"verb":"HealthCheck", "mya_property_id":"123", "ota_property_id":"321", "shared_secret":"test"}' http://{your_ip}:{your_port}/
 
 ## Configuration
 
-The default configuration file can be found at at `src/MyAllocator/Config/Config.php`. The following is configurable:
+The default configuration file can be found at at `src/MyAllocator/Config/MaConfig.php`. The following is configurable:
 
-#### paramValidationEnabled
+#### shared_secret
 
-The SDK supports parameter validation, which can be configured via the `paramValidationEnabled` configuration in `src/MyAllocator/Config/Config.php`. If you prefer to send a raw request for performance, or other reasons, set this configuration to false. If parameter validation is enabled:
-
-1.  Required and optional Api keys are defined via $keys array in each Api class.
-2.  Top level required and optional keys are validated prior to sending a request to MyAllocator.
-3.  An ApiException is thrown if a required key is not present.
-4.  Top level keys not defined in $keys are stripped from parameters.
-5.  Minimum optional parameters are enforced.
-
-#### dataResponse
-
-Define what data you prefer to be included in Api responses. The response 'body', 'code', and 'headers' keys are not configurable and will always be included in a response. Each piece of data may be useful if you intend to store request and response data locally. The following keys in the dataResponse array below will cause the related data to be returned in all responses:
-
-    1. timeRequest - The time immediately before the request is sent
-        to MyAllocator (from Requestor). timeRequest is returned
-        as a DateTime object.
-    2. timeResponse - The time immediately after the response is
-        received from MyAllocator (from Requestor). timeResponse is
-        returned as a DateTime object.
-    3. request - The exact request data sent from MyAllocator including
-        authentication and provided parameters. The request is returned
-        in the configured dataFormat format. Note, for xml, the request
-        is stored in the result prior to url encoding.
+The shared_secret will be allocated to the OTA by MyAllocator after initial registration. The shared_secret is used to authenticate the MA <-> OTA communication.
 
 #### debugsEnabled
 
 Set `debugsEnabled` to true in `src/MyAllocator/Config/Config.php` to display request and response data in the SDK interface and API transfer data formats for an API request.
 
-## API Response Format
+## Integration
 
-A successful request call will return an array with the following response structure. By default, all key/values are returned. If you prefer to not receive request data or response['time'] in an Api response, you may configure the dataResponse array in `src/MyAllocator/Config/Config.php` to remove the data.
+This SDK is meant to be installed in the OTA's environment to act as an inbound API receiver for MyAllocator. It is not required for BuildToUs API integration, however, if an OTA is integrating via PHP we highly recommend utilizing the sdk to minimize your integration time and costs.
 
-    return array(
-        'request' => array(
-            'time' => {DateTime Object},
-            'body' => {Request body in dataFormat}
-        ),
-        'response' => array(
-            'time' => {DateTime Object},
-            'code' => {int},
-            'headers' => {string},
-            'body' => {Response body in dataFormat}
-        )
-    );
+The SDK can be broken into three primary parts, the receiver, SDK library, and backend interface (to be implemented by OTA).
 
-`request['time']` *(optional)* is a DateTime object representing the time immediately before sending the request to MyAllocator.
+#### Receiver
 
-`request['body']` *(optional)* is the request body sent to MyAllocator in your configured dataFormat.
+The receiver is located at `examples/Receiver/MaReceiver.php` and is the actual endpoint script that receives the request and forwards to the SDK library. It is optional for an OTA to utilize this receiver. If you have an existing framework for exposing endpoints, please feel free to continue using it and simply invoke the SDK library similar to the receiver example. If an existing mechanism is not available and you would like a quick solution, please feel free to use the included receiver.
 
-`response['time']` *(optional)* is a DateTime object representing the time immediately after receiving the response from MyAllocator.
+#### SDK Library
 
-`response['code']` is the HTTP response code.
+The SDK library is located at `src/MyAllocator` and consists of the inbound API router, API definitions, backend interface definition, and required infrastructure.
 
-`response['headers']` are the HTTP response headers.
+#### Backend Interface
 
-`response['body']` is the response body.
+The SDK library includes a backend interface definition location at `src/MyAllocator/Api/Inbound/MaInboundInterface.php` which must be implemented by your environment so that the router (MaRouter.php) may forward requests to your backend system. You must instantiate an object of the class that implements this interface and pass it into the MaRouter object's construct during instantiation. Take a look at `examples/Receiver/MaInboundInterfaceStub.php` for a stub/example interface implementation and `examples/Receiver/MaReceiver.php` for how it is instantiated and passed into MaRouter.
 
-Requests may also return any of the exceptions defined in `src/MyAllocator/Exception/`. Be sure to wrap your API calls in try blocks. You may use the `getHttpStatus`, `getHttpBody`, and `getJsonBody` methods defined in `/Exception/MaException.php` within an exception block for information. Additionally, the `getState` method may be called for an exception to retreive the state information for the request up to the point of failure in the same format as the response structure above (request/response). For example, if an HTTP connection timeout exception occurs, you may acess the request time/body and response code/headers via `getState`.
+It is worth explicitly noting, the backend interface implementations must return an MaResponse object to the calling router (as suggested by the docblocks).
 
 ## Examples
 
