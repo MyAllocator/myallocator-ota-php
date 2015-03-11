@@ -77,6 +77,7 @@ To use the bindings, add the following to a PHP script:
 Configure your host's webserver at the desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
 
     root@nate:/var/www/test# curl -v -H "Accept: application/json" -X POST -H "Content-Type: application/json" -d '{"verb":"HealthCheck", "mya_property_id":"123", "ota_property_id":"321", "shared_secret":"test"}' http://{your_ip}:{your_port}/
+    {"success":true,"errors":null}
 
 #### Installation and usage example with manual installation:
 
@@ -100,6 +101,7 @@ Edit require_once autoload in line 12 to:
 Configure your host's webserver at the desired endpoint to point to /var/www/test/MaReceiver.php. Send in a health check :)
 
     root@nate:/var/www/test# curl -v -H "Accept: application/json" -X POST -H "Content-Type: application/json" -d '{"verb":"HealthCheck", "mya_property_id":"123", "ota_property_id":"321", "shared_secret":"test"}' http://{your_ip}:{your_port}/
+    {"success":true,"errors":null}
 
 ## Configuration
 
