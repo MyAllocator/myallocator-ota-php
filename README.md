@@ -1,4 +1,3 @@
-# !!! This package is still in development. Don't use it quite yet !!!
 
 # myallocator-ota-php
 
