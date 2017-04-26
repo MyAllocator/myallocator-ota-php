@@ -116,9 +116,12 @@ class MaRouter
         }
 
         // MA:OTA property validation
-        $rsp = $this->ota_intf->authenticateProperty($request);
-        if (!$rsp->success) {
-            return $rsp->response();
+        // Don't validate property on HealthCheck or SetupProperty
+        if ($request['verb'] != 'HealthCheck' && $request['verb'] != 'SetupProperty') {
+            $rsp = $this->ota_intf->authenticateProperty($request);
+            if (!$rsp->success) {
+                return $rsp->response();
+            }
         }
 
         // Invoke method
