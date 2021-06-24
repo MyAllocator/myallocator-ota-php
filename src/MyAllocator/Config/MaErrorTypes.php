@@ -10,14 +10,14 @@
  */
 
 if (!defined('MA_OTA_ERR')) {
-    define('MA_OTA_ERR',                        100);
-    define('MA_OTA_ERR_JSON_INVALID',           101);
-    define('MA_OTA_ERR_ARGS_INVALID',           103);
-    define('MA_OTA_ERR_AUTH_INVALID',           104);
-    define('MA_OTA_ERR_AUTH_PROPERTY_INVALID',  105);
-    define('MA_OTA_ERR_VERB_INVALID',           106);
-    define('MA_OTA_ERR_RSP_INVALID',            107);
-    define('MA_OTA_ERR_BOOKING_NONEXIST',       108);
+    define('MA_OTA_ERR',                        3);
+    define('MA_OTA_ERR_JSON_INVALID',           1145);
+    define('MA_OTA_ERR_ARGS_INVALID',           3);
+    define('MA_OTA_ERR_AUTH_INVALID',           1001);
+    define('MA_OTA_ERR_AUTH_PROPERTY_INVALID',  1001);
+    define('MA_OTA_ERR_VERB_INVALID',           3);
+    define('MA_OTA_ERR_RSP_INVALID',            3);
+    define('MA_OTA_ERR_BOOKING_NONEXIST',       1217);
 }
 
 return array(
